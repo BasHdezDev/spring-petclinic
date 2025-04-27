@@ -1,16 +1,36 @@
-#!groovy
 pipeline {
     agent none
-   stages {     
-    stage('Maven Install') {
-      agent {         
-       docker {          
-         image 'maven:3.5.0'         
-     }       
-  }       
-  steps {
-       sh 'mvn clean install'
-       }
-     }
-   }
- }
+
+    stages {
+        stage('Maven Install') {
+            agent {
+                docker {
+                    image 'maven:3.5.0'
+                    args '-v $HOME/.m2:/root/.m2' // Montar el repositorio local de Maven para cachear dependencias
+                }
+            }
+            steps {
+                script {
+                    try {
+                        sh 'mvn clean install'
+                    } catch (err) {
+                        error "Maven build failed: ${err}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+        always {
+            echo 'Cleaning up...'
+            cleanWs()
+        }
+    }
+}
