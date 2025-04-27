@@ -5,7 +5,7 @@ pipeline {
         stage('Maven Install') {
             agent {
                 docker {
-                    image 'maven:3.5.0'
+                    image 'maven:3.9.6'
                     args '-v $HOME/.m2:/root/.m2' // Montar el repositorio local de Maven para cachear dependencias
                 }
             }
